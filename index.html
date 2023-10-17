@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Web Page</title>
+</head>
+<body>
+    <h1>Chatbot Web Page</h1>
+    
+    <!-- Chatbot interface -->
+    <div id="chatbot-container">
+        <!-- Chat messages will be displayed here -->
+        <div id="chat-messages"></div>
+        
+        <!-- Input field for typing messages -->
+        <input type="text" id="user-input" placeholder="Type your message...">
+        
+        <!-- Button to send the message -->
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+   <script>
+    async function sendMessageToServer(payload) {
+    try {
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error; // rethrow the error to handle it outside of this function if needed
+    }
+}
+
+function sendMessage() {
+    // Get user input
+    var userInput = document.getElementById("user-input").value;
+
+    // Display user message
+    var userMessageDiv = document.createElement("div");
+    userMessageDiv.className = "message user-message";
+    userMessageDiv.innerText = "You: " + userInput;
+    document.getElementById("chat-messages").appendChild(userMessageDiv);
+
+    // Prepare payload
+    var payload = { "message": userInput };
+    console.log(payload);
+
+    // Call the async function and handle its response
+    sendMessageToServer(payload)
+        .then(data => {
+            var botMessageDiv = document.createElement("div");
+            botMessageDiv.className = "message bot-message";
+            botMessageDiv.innerText = "Bot: " + data.output;
+            document.getElementById("chat-messages").appendChild(botMessageDiv);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+    // Clear the input field
+    document.getElementById("user-input").value = "";
+}
+
+   </script>
+</body>
+</html>
